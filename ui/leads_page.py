@@ -30,6 +30,29 @@ def _lead_rows(leads) -> list[dict]:
     ]
 
 
+def _edit_search_text(lead) -> str:
+    return " ".join(
+        value or ""
+        for value in (
+            lead.business_name,
+            lead.niche,
+            lead.city,
+            lead.address,
+            lead.email,
+            lead.phone,
+        )
+    ).casefold()
+
+
+def _edit_option_label(lead) -> str:
+    context = [lead.niche or "Uncategorized", lead.city or "Location unavailable"]
+    if lead.email:
+        context.append(lead.email)
+    elif lead.phone:
+        context.append(lead.phone)
+    return f"{lead.business_name} — {' · '.join(context)}"
+
+
 def render(session: Session) -> None:
     page_intro(
         "Lead workspace",
@@ -160,10 +183,47 @@ def render(session: Session) -> None:
         )
 
     with st.expander("Edit one lead"):
-        options = {f"{lead.business_name} (#{lead.id})": lead for lead in filtered}
-        if options:
-            label = st.selectbox("Lead", options)
-            lead = options[label]
+        st.caption("Find a lead by name or contact details, then open it for editing.")
+        edit_search_col, edit_niche_col, edit_status_col = st.columns([1.5, 1, 1])
+        edit_query = edit_search_col.text_input(
+            "Find a lead",
+            placeholder="Name, email, phone, city…",
+            key="edit_lead_search",
+        )
+        edit_niches = ["All lead lists", *sorted(niche_counts)]
+        edit_niche = edit_niche_col.selectbox(
+            "Lead list",
+            edit_niches,
+            key="edit_lead_niche",
+        )
+        edit_status = edit_status_col.selectbox(
+            "Status",
+            ["All statuses", *STATUSES],
+            key="edit_lead_status",
+        )
+
+        edit_query_normalized = edit_query.strip().casefold()
+        edit_matches = sorted(
+            (
+                lead
+                for lead in leads
+                if (not edit_query_normalized or edit_query_normalized in _edit_search_text(lead))
+                and (edit_niche == "All lead lists" or lead.niche == edit_niche)
+                and (edit_status == "All statuses" or lead.status == edit_status)
+            ),
+            key=lambda lead: lead.business_name.casefold(),
+        )
+
+        if edit_matches:
+            st.caption(f"{len(edit_matches)} matching lead{'s' if len(edit_matches) != 1 else ''}")
+            lead_by_id = {lead.id: lead for lead in edit_matches}
+            selected_edit_id = st.selectbox(
+                "Choose a lead to edit",
+                list(lead_by_id),
+                format_func=lambda lead_id: _edit_option_label(lead_by_id[lead_id]),
+                key="edit_lead_id",
+            )
+            lead = lead_by_id[selected_edit_id]
             with st.form(f"edit_{lead.id}"):
                 name = st.text_input("Business name", value=lead.business_name)
                 email = st.text_input("Email", value=lead.email or "")
@@ -182,6 +242,8 @@ def render(session: Session) -> None:
                         EmailRepository(session).suppress(lead.email)
                     st.success("Lead updated.")
                     st.rerun()
+        else:
+            st.info("No leads match these filters. Try a broader search or choose another lead list.")
 
 
 def _discover_emails(session: Session, selected_ids: list[int]) -> None:
