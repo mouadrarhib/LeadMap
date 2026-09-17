@@ -12,6 +12,7 @@ class Lead(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     place_id: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
     business_name: Mapped[str] = mapped_column(String(255), index=True)
+    niche: Mapped[str] = mapped_column(String(255), default="Uncategorized", index=True)
     category: Mapped[str | None] = mapped_column(String(255))
     address: Mapped[str | None] = mapped_column(Text)
     city: Mapped[str | None] = mapped_column(String(255), index=True)
@@ -82,4 +83,3 @@ class Suppression(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
     reason: Mapped[str] = mapped_column(String(255), default="Opted out")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-

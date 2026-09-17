@@ -65,6 +65,7 @@ def render(session: Session) -> None:
                 businesses = service.search(niche, location, int(max_results))
                 st.write(f"Found {len(businesses)} businesses. Checking for duplicates…")
                 created, skipped = LeadService(session).import_leads(businesses)
+                st.session_state.active_niche = niche.strip().title()
                 status.update(label="Search complete", state="complete")
             st.success(f"Saved {created} new leads. Skipped {skipped} duplicates.")
         except PlacesError as exc:

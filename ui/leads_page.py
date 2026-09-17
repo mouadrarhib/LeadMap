@@ -41,6 +41,40 @@ def render(session: Session) -> None:
         st.info("No leads yet. Start with Search businesses to build your first list.")
         return
 
+    niche_counts: dict[str, int] = {}
+    for lead in leads:
+        niche_counts[lead.niche] = niche_counts.get(lead.niche, 0) + 1
+    recent_niche = st.session_state.get("active_niche") or leads[0].niche
+    if recent_niche not in niche_counts:
+        recent_niche = leads[0].niche
+    niche_labels = {
+        f"{name} ({count})": name for name, count in sorted(niche_counts.items())
+    }
+    all_label = f"All lead lists ({len(leads)})"
+    niche_labels[all_label] = "__all__"
+    default_label = next(
+        label for label, value in niche_labels.items() if value == recent_niche
+    )
+
+    list_col, list_context_col = st.columns([1.4, 1.6])
+    selected_label = list_col.selectbox(
+        "Lead list",
+        list(niche_labels),
+        index=list(niche_labels).index(default_label),
+    )
+    selected_niche = niche_labels[selected_label]
+    if selected_niche != "__all__":
+        st.session_state.active_niche = selected_niche
+        list_context_col.markdown(
+            f'<div class="list-context"><strong>{niche_counts[selected_niche]} leads</strong><span>Showing only {selected_niche}</span></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        list_context_col.markdown(
+            f'<div class="list-context"><strong>{len(leads)} leads</strong><span>Showing every lead list</span></div>',
+            unsafe_allow_html=True,
+        )
+
     filter_col, status_col, score_col = st.columns([1.2, 1, 1])
     query = filter_col.text_input("Search leads", placeholder="Name, city, email…")
     status_filter = status_col.multiselect("Status", STATUSES)
@@ -55,7 +89,8 @@ def render(session: Session) -> None:
             [lead.business_name or "", lead.city or "", lead.email or "", lead.address or ""]
         ).lower()
         return (
-            (not query or query.lower() in haystack)
+            (selected_niche == "__all__" or lead.niche == selected_niche)
+            and (not query or query.lower() in haystack)
             and (not status_filter or lead.status in status_filter)
             and lead.score >= min_score
             and (not email_only or bool(lead.email))

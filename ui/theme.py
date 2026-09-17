@@ -105,6 +105,18 @@ def apply_theme() -> None:
           line-height: 1.45;
           margin-top: .08rem;
         }
+        .list-context {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-height: 4.35rem;
+          margin-top: 1.72rem;
+          padding: .65rem .9rem;
+          border-left: 3px solid var(--amber);
+          color: var(--ocean);
+        }
+        .list-context strong { font-size: .95rem; line-height: 1.3; }
+        .list-context span { color: #60767d; font-size: .84rem; margin-top: .08rem; }
         input:focus, textarea:focus, button:focus-visible { outline: 3px solid rgba(239,159,39,.45) !important; }
         @media (max-width: 640px) {
           [data-testid="stForm"] { padding: 1rem; }

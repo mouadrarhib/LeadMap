@@ -10,9 +10,10 @@ def test_maps_google_place_payload() -> None:
             "rating": 4.5,
         },
         "Casablanca",
+        "Dentists",
     )
     assert mapped["place_id"] == "abc"
     assert mapped["business_name"] == "Clinic"
+    assert mapped["niche"] == "Dentists"
     assert mapped["domain"] == "clinic.ma"
     assert "query_place_id=abc" in mapped["maps_url"]
-

@@ -61,7 +61,10 @@ class GooglePlacesService:
                         raise PlacesError("Google Places quota was exceeded. Check the API project quota.")
                     response.raise_for_status()
                     payload = response.json()
-                    results.extend(self._map_place(place, location) for place in payload.get("places", []))
+                    results.extend(
+                        self._map_place(place, location, niche)
+                        for place in payload.get("places", [])
+                    )
                     page_token = payload.get("nextPageToken")
                     if not page_token:
                         break
@@ -74,12 +77,13 @@ class GooglePlacesService:
         return results[:max_results]
 
     @staticmethod
-    def _map_place(place: dict[str, Any], city: str) -> dict[str, Any]:
+    def _map_place(place: dict[str, Any], city: str, niche: str = "Uncategorized") -> dict[str, Any]:
         website = place.get("websiteUri")
         place_id = place.get("id")
         return {
             "place_id": place_id,
             "business_name": place.get("displayName", {}).get("text", "Unknown business"),
+            "niche": niche.strip().title() or "Uncategorized",
             "category": place.get("primaryTypeDisplayName", {}).get("text"),
             "address": place.get("formattedAddress"),
             "city": city,
@@ -92,4 +96,3 @@ class GooglePlacesService:
             "review_count": place.get("userRatingCount", 0),
             "source": "GOOGLE_PLACES",
         }
-
