@@ -1,0 +1,63 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+client_secret*.json
+.gmail_token.json
+token.json
+
+# Python environments and bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test, type-checking, and coverage artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Packaging and build output
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Runtime data and logs
+*.log
+*.pid
+*.sqlite
+*.sqlite3
+*.db
+
+# Streamlit local secrets
+.streamlit/secrets.toml
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local tool workspace metadata and instructions
+.[c]odex/
+.[c]laude/
+.[c]ursor/
+.[w]indsurf/
+.[a]ider*
+.[c]ontinue/
+[A]GENTS.md
+[C]LAUDE.md
+.[c]ursorrules
+.github/[c]opilot-instructions.md
