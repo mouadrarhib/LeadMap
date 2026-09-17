@@ -73,9 +73,3 @@ def render(session: Session) -> None:
         except Exception as exc:
             session.rollback()
             st.error(f"The search could not be saved: {exc}")
-
-    with st.expander("Google Places setup"):
-        st.markdown(
-            "Enable **Places API (New)** in a Google Cloud project, create an API key, and add it as "
-            "`GOOGLE_MAPS_API_KEY` in `.env`. Restrict the key to the Places API before regular use."
-        )
